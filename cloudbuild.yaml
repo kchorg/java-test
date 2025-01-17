@@ -3,8 +3,6 @@ options:
   pool:
     name: 'projects/$PROJECT_ID/locations/asia-east1/workerPools/cloud-build-vm-1'
 steps:
-  - name: 'kuoche1712003/java:17'
+  - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
-    args: ['-c', './mvnw package -DskipTests -Dnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dquarkus.container-image.group=asia-east1-docker.pkg.dev -Dquarkus.container-image.name=$PROJECT_ID/rmn/java-test']
-images:
-  - "asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test"
+    args: [ '-c', 'apt install -y openjdk-17-jdk && ./mvnw package -DskipTests -Dquarkus.container-image.build=true -Dquarkus.container-image.group=asia-east1-docker.pkg.dev -Dquarkus.container-image.name=$PROJECT_ID/rmn/java-test -Dquarkus.container-image.tag=$SHORT_SHA && docker push asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test:$SHORT_SHA' ]
