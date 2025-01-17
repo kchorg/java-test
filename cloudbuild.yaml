@@ -1,0 +1,16 @@
+options:
+  logging: CLOUD_LOGGING_ONLY
+steps:
+  - name: 'gcr.io/cloud-builders/javac:17'
+    entrypoint: './mvnw'
+    args:
+      - 'package'
+      - '-DskipTests'
+      - '-Dnative'
+      - '-Dquarkus.native.container-build=true'
+      - '-Dquarkus.container-image.build=true'
+      - '-Dquarkus.container-image.group=asia-east1-docker.pkg.dev'
+      - '-Dquarkus.container-image.name=$PROJECT_ID/rmn/java-test'
+
+images:
+  - "asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test"
