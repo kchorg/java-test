@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-test
+  namespace: rmn
+spec:
+  selector:
+    matchLabels:
+      name: java-test
+  template:
+    metadata:
+      labels:
+        name: java-test
+    spec:
+      containers:
+        - image: @IMAGE_NAME@
+          imagePullPolicy: Always
+          name: java-test
+          ports:
+            - name: web
+              protocol: TCP
+              containerPort: 8080
+          resources:
+            requests:
+              memory: '500Mi'
+              cpu: '250m'
+            limits:
+              memory: '800Mi'
+              cpu: '500m'
+      restartPolicy: Always

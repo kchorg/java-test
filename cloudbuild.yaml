@@ -4,5 +4,17 @@ options:
     name: 'projects/$PROJECT_ID/locations/asia-east1/workerPools/cloud-build-vm-1'
 steps:
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
     entrypoint: 'bash'
-    args: [ '-c', 'apt install -y openjdk-17-jdk && ./mvnw package -DskipTests -Dquarkus.container-image.build=true -Dquarkus.container-image.group=asia-east1-docker.pkg.dev -Dquarkus.container-image.name=$PROJECT_ID/rmn/java-test -Dquarkus.container-image.tag=$SHORT_SHA && docker push asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test:$SHORT_SHA' ]
+    args: [ '-c', 'apt-get update && apt install -y openjdk-17-jdk && ./mvnw package -DskipTests -Dquarkus.container-image.build=true -Dquarkus.container-image.group=asia-east1-docker.pkg.dev -Dquarkus.container-image.name=$PROJECT_ID/rmn/java-test -Dquarkus.container-image.tag=$SHORT_SHA && docker push asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test:$SHORT_SHA' ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Config file'
+    entrypoint: 'bash'
+    args: ['-c', 'sed -i "s#@IMAGE_NAME@#asia-east1-docker.pkg.dev/$PROJECT_ID/rmn/java-test:$SHORT_SHA#g" .k8s/staging.yaml && mkdir workspace && cp .k8s/staging.yaml workspace/staging.yaml && cat workspace/staging.yaml']
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    id: 'Apply deploy'
+    args:
+      - 'run'
+      - '--filename=workspace/staging.yaml'
+      - '--cluster=autopilot-cluster-1'
+      - '--location=asia-east1'
